@@ -1,0 +1,75 @@
+<%- include('partials/header') %>
+
+    <main class="page-content pdp-page">
+        <div class="pdp-container">
+            <div class="pdp-image">
+                <img src="<%= product.image %>" alt="<%= product.name %>">
+            </div>
+            <div class="pdp-details">
+                <p class="pdp-category">
+                    <%= product.category %> / <%= product.gender %>
+                </p>
+                <h1 class="pdp-title">
+                    <%= product.name %>
+                </h1>
+                <p class="pdp-price">$<%= product.price %>
+                </p>
+                <p class="pdp-description">
+                    <%= product.description
+                        || 'Crafted for performance and built to last. This shoe delivers comfort, support, and style for every step.'
+                        %>
+                </p>
+
+                <form action="/cart/add" method="POST">
+                    <input type="hidden" name="productId" value="<%= product._id %>">
+                    <button type="submit" class="btn btn-primary btn-full">Add to Cart</button>
+                </form>
+
+                <div class="pdp-meta">
+                    <div class="pdp-meta-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg>
+                        <span>Free shipping on orders over $50</span>
+                    </div>
+                    <div class="pdp-meta-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="20 12 20 22 4 22 4 12" />
+                            <rect x="2" y="7" width="20" height="5" />
+                            <line x1="12" y1="22" x2="12" y2="7" />
+                        </svg>
+                        <span>Free 30-day returns</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <% if (related && related.length> 0) { %>
+            <section class="section section-carousel">
+                <div class="carousel-header">
+                    <h2 class="section-title-sm">You Might Also Like</h2>
+                </div>
+                <div class="carousel-track">
+                    <% related.forEach(r=> { %>
+                        <a href="/product/<%= r._id %>" class="carousel-card">
+                            <div class="card-image" style="background-color: #f5f5f5;">
+                                <img src="<%= r.image %>" alt="<%= r.name %>" loading="lazy">
+                            </div>
+                            <div class="card-info">
+                                <h3 class="card-title">
+                                    <%= r.name %>
+                                </h3>
+                                <p class="card-price">$<%= r.price %>
+                                </p>
+                            </div>
+                        </a>
+                        <% }) %>
+                </div>
+            </section>
+            <% } %>
+    </main>
+
+    <%- include('partials/footer') %>

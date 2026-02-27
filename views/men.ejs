@@ -1,0 +1,77 @@
+<%- include('partials/header') %>
+
+    <main class="page-content product-listing-page">
+        <div class="plp-container">
+            <div class="plp-header">
+                <h1 class="section-title">MEN'S SHOES</h1>
+                <div class="plp-filters">
+                    <div class="filter-group">
+                        <label for="category-filter">Category</label>
+                        <select id="category-filter" onchange="applyFilters()">
+                            <option value="" <%=currentCategory==='' ? 'selected' : '' %>>All</option>
+                            <option value="running" <%=currentCategory==='running' ? 'selected' : '' %>>Running</option>
+                            <option value="lifestyle" <%=currentCategory==='lifestyle' ? 'selected' : '' %>>Lifestyle
+                            </option>
+                            <option value="basketball" <%=currentCategory==='basketball' ? 'selected' : '' %>>Basketball
+                            </option>
+                            <option value="training" <%=currentCategory==='training' ? 'selected' : '' %>>Training
+                            </option>
+                            <option value="jordan" <%=currentCategory==='jordan' ? 'selected' : '' %>>Jordan</option>
+                            <option value="skateboarding" <%=currentCategory==='skateboarding' ? 'selected' : '' %>
+                                >Skateboarding</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="sort-filter">Sort By</label>
+                        <select id="sort-filter" onchange="applyFilters()">
+                            <option value="" <%=currentSort==='' ? 'selected' : '' %>>Newest</option>
+                            <option value="price-asc" <%=currentSort==='price-asc' ? 'selected' : '' %>>Price: Low to
+                                High</option>
+                            <option value="price-desc" <%=currentSort==='price-desc' ? 'selected' : '' %>>Price: High to
+                                Low</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <% if (products.length> 0) { %>
+                <div class="product-grid">
+                    <% products.forEach(product=> { %>
+                        <a href="/product/<%= product._id %>" class="product-card">
+                            <div class="product-card-image">
+                                <img src="<%= product.image %>" alt="<%= product.name %>" loading="lazy">
+                            </div>
+                            <div class="product-card-info">
+                                <h3 class="product-card-title">
+                                    <%= product.name %>
+                                </h3>
+                                <p class="product-card-category">
+                                    <%= product.category %>
+                                </p>
+                                <p class="product-card-price">$<%= product.price %>
+                                </p>
+                            </div>
+                        </a>
+                        <% }) %>
+                </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <h2>No products found</h2>
+                        <p>Check back later or try a different filter.</p>
+                    </div>
+                    <% } %>
+        </div>
+    </main>
+
+    <script>
+        function applyFilters() {
+            const category = document.getElementById('category-filter').value;
+            const sort = document.getElementById('sort-filter').value;
+            let url = '/men?';
+            if (category) url += 'category=' + category + '&';
+            if (sort) url += 'sort=' + sort;
+            window.location.href = url;
+        }
+    </script>
+
+    <%- include('partials/footer') %>

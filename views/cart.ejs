@@ -1,0 +1,73 @@
+<%- include('partials/header') %>
+
+    <main class="page-content cart-page">
+        <div class="cart-container">
+            <h1 class="section-title">YOUR CART</h1>
+
+            <% if (cart.length> 0) { %>
+                <div class="cart-layout">
+                    <div class="cart-items">
+                        <% cart.forEach(item=> { %>
+                            <div class="cart-item">
+                                <div class="cart-item-image">
+                                    <img src="<%= item.image %>" alt="<%= item.name %>">
+                                </div>
+                                <div class="cart-item-details">
+                                    <h3 class="cart-item-name">
+                                        <%= item.name %>
+                                    </h3>
+                                    <p class="cart-item-price">$<%= item.price %>
+                                    </p>
+                                    <div class="cart-item-actions">
+                                        <form action="/cart/update" method="POST" class="cart-qty-form">
+                                            <input type="hidden" name="productId" value="<%= item.productId %>">
+                                            <label for="qty-<%= item.productId %>">Qty:</label>
+                                            <select name="quantity" id="qty-<%= item.productId %>"
+                                                onchange="this.form.submit()">
+                                                <% for (let i=1; i <=10; i++) { %>
+                                                    <option value="<%= i %>" <%=item.quantity===i ? 'selected' : '' %>>
+                                                        <%= i %>
+                                                    </option>
+                                                    <% } %>
+                                            </select>
+                                        </form>
+                                        <form action="/cart/remove" method="POST">
+                                            <input type="hidden" name="productId" value="<%= item.productId %>">
+                                            <button type="submit" class="cart-remove-btn">Remove</button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="cart-item-subtotal">
+                                    $<%= (item.price * item.quantity).toFixed(2) %>
+                                </div>
+                            </div>
+                            <% }) %>
+                    </div>
+                    <div class="cart-summary">
+                        <h2 class="cart-summary-title">Summary</h2>
+                        <div class="cart-summary-row">
+                            <span>Subtotal</span>
+                            <span>$<%= total.toFixed(2) %></span>
+                        </div>
+                        <div class="cart-summary-row">
+                            <span>Estimated Shipping</span>
+                            <span>Free</span>
+                        </div>
+                        <div class="cart-summary-row cart-summary-total">
+                            <span>Total</span>
+                            <span>$<%= total.toFixed(2) %></span>
+                        </div>
+                        <a href="/checkout" class="btn btn-primary btn-full">Checkout</a>
+                    </div>
+                </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <h2>Your cart is empty</h2>
+                        <p>Looks like you haven't added anything yet.</p>
+                        <a href="/men" class="btn btn-primary">Shop Now</a>
+                    </div>
+                    <% } %>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>

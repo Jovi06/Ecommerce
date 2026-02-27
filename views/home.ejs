@@ -1,0 +1,177 @@
+<%- include('partials/header') %>
+
+    <!-- Loading Screen -->
+    <div id="loader" class="loader">
+        <div class="loader-inner">
+            <svg class="loader-logo" viewBox="0 0 69 32" fill="white" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M68.56 4.05C57.31 10.1 44.8 18.47 35.81 26.37c-4.24 3.73-7.74 6.7-10.48 6.7-3.59 0-4.65-4.07-5.13-7.03L16.11 4.74C15.49 1.47 14.5.34 12.74.34c-1.47 0-4.34 1.92-7.53 4.34L2.75 1.94C7.28-1.87 12.2-.2 14.92-.2c4.62 0 6.1 3.07 7.01 7.66l3.44 18.78c1.09-.98 3.56-3.35 7.76-7.03C40.96 12.2 54.8 3.44 62.26 0l6.3 4.05z" />
+            </svg>
+            <div class="loader-bar-track">
+                <div class="loader-bar" id="loader-bar"></div>
+            </div>
+            <p class="loader-text" id="loader-text">Loading experience...</p>
+        </div>
+    </div>
+
+    <!-- Hero: Tiger Scrollytelling -->
+    <section id="tiger-section" class="tiger-section">
+        <div class="tiger-sticky" id="tiger-sticky">
+            <canvas id="ambient-canvas" class="ambient-canvas"></canvas>
+            <canvas id="tiger-canvas" class="tiger-canvas"></canvas>
+            <div class="hero-overlay" id="hero-overlay">
+                <p class="hero-eyebrow">Nike Presents</p>
+                <h1 class="hero-title">
+                    <span>HUNGRY</span>
+                    <span>FOR</span>
+                    <span>MORE</span>
+                </h1>
+                <p class="hero-subtitle">Speed has a new silhouette.</p>
+            </div>
+            <div class="scroll-indicator" id="scroll-indicator">
+                <span>Scroll to explore</span>
+                <div class="scroll-arrow">
+                    <svg width="16" height="24" viewBox="0 0 16 24" fill="none" stroke="white" stroke-width="2">
+                        <path d="M8 0v20M1 14l7 7 7-7" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- P1: Product Intro -->
+    <section class="section section-intro" id="section-intro">
+        <div class="container">
+            <p class="eyebrow">First Look</p>
+            <h2 class="section-title">NIKE AIR MAX PULSE</h2>
+            <p class="section-desc">
+                Bring the past forward. The Air Max Pulse is designed for the new generation of Air Max lovers, pulling
+                inspiration from the icons that came before it. Visible Air, bold design, and a comfortable ride all
+                come together to tell a story rooted in culture and built for today.
+            </p>
+            <div class="btn-group">
+                <a href="/men" class="btn btn-primary">Shop Now</a>
+                <a href="/men?category=running" class="btn btn-secondary">Shop Air Max</a>
+            </div>
+        </div>
+        <div class="intro-product-image">
+            <img src="/images/air-max-pulse.png" alt="Nike Air Max Pulse" loading="lazy">
+        </div>
+    </section>
+
+    <!-- P2: Best of Air Max Carousel -->
+    <section class="section section-carousel" id="section-carousel">
+        <div class="carousel-header">
+            <h2 class="section-title-sm">Best of Air Max</h2>
+            <div class="carousel-nav">
+                <button class="carousel-arrow carousel-prev" id="carousel-prev" aria-label="Previous">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                </button>
+                <button class="carousel-arrow carousel-next" id="carousel-next" aria-label="Next">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="carousel-track" id="carousel-track">
+            <% if (products && products.length> 0) { %>
+                <% products.forEach(p=> { %>
+                    <a href="/product/<%= p._id %>" class="carousel-card">
+                        <div class="card-image" style="background-color: #f5f5f5;">
+                            <img src="<%= p.image %>" alt="<%= p.name %>" loading="lazy">
+                        </div>
+                        <div class="card-info">
+                            <h3 class="card-title">
+                                <%= p.name %>
+                            </h3>
+                            <p class="card-category">
+                                <%= p.gender.charAt(0).toUpperCase() + p.gender.slice(1) %>'s Shoes
+                            </p>
+                            <p class="card-price">$<%= p.price %>
+                            </p>
+                        </div>
+                    </a>
+                    <% }) %>
+                        <% } else { %>
+                            <!-- Static fallback cards -->
+                            <div class="carousel-card">
+                                <div class="card-image" style="background-color: #f5f5f5;">
+                                    <img src="/images/air-max-90.png" alt="Nike Air Max 90" loading="lazy">
+                                </div>
+                                <div class="card-info">
+                                    <h3 class="card-title">Nike Air Max 90</h3>
+                                    <p class="card-category">Men's Shoes</p>
+                                    <p class="card-price">$130</p>
+                                </div>
+                            </div>
+                            <div class="carousel-card">
+                                <div class="card-image" style="background-color: #f5f5f5;">
+                                    <img src="/images/air-max-97.png" alt="Nike Air Max 97" loading="lazy">
+                                </div>
+                                <div class="card-info">
+                                    <h3 class="card-title">Nike Air Max 97</h3>
+                                    <p class="card-category">Men's Shoes</p>
+                                    <p class="card-price">$175</p>
+                                </div>
+                            </div>
+                            <div class="carousel-card">
+                                <div class="card-image" style="background-color: #f5f5f5;">
+                                    <img src="/images/air-max-pulse.png" alt="Nike Air Max Pulse" loading="lazy">
+                                </div>
+                                <div class="card-info">
+                                    <h3 class="card-title">Nike Air Max Pulse</h3>
+                                    <p class="card-category">Men's Shoes</p>
+                                    <p class="card-price">$150</p>
+                                </div>
+                            </div>
+                            <% } %>
+        </div>
+    </section>
+
+    <!-- P3: Featured Banner -->
+    <section class="section section-banner" id="section-banner">
+        <div class="banner-image-wrapper">
+            <img src="/images/cheetah-forest.png" alt="Cheetah in the wild" class="banner-img" loading="lazy">
+            <div class="banner-overlay-gradient"></div>
+        </div>
+        <div class="banner-content">
+            <h2 class="banner-title">
+                <span>STEP INTO</span>
+                <span>WHAT FEELS</span>
+                <span>GOOD</span>
+            </h2>
+            <a href="/men" class="btn btn-white">Shop Now</a>
+        </div>
+    </section>
+
+    <!-- P4: The Essentials -->
+    <section class="section section-essentials" id="section-essentials">
+        <h2 class="section-title-sm">The Essentials</h2>
+        <div class="essentials-grid">
+            <div class="essential-card">
+                <div class="essential-image-wrapper">
+                    <img src="/images/mens-lifestyle.png" alt="Men's Collection" loading="lazy">
+                    <a href="/men" class="btn btn-pill">Men's</a>
+                </div>
+            </div>
+            <div class="essential-card">
+                <div class="essential-image-wrapper">
+                    <img src="/images/womens-lifestyle.png" alt="Women's Collection" loading="lazy">
+                    <a href="/women" class="btn btn-pill">Women's</a>
+                </div>
+            </div>
+            <div class="essential-card">
+                <div class="essential-image-wrapper">
+                    <img src="/images/kids-lifestyle.png" alt="Kids' Collection" loading="lazy">
+                    <a href="/kids" class="btn btn-pill">Kids'</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <%- include('partials/footer') %>

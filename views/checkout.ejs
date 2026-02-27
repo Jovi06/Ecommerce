@@ -1,0 +1,51 @@
+<%- include('partials/header') %>
+
+    <main class="page-content checkout-page">
+        <div class="checkout-container">
+            <h1 class="section-title">CHECKOUT</h1>
+
+            <div class="cart-layout">
+                <div class="checkout-items">
+                    <h2 class="cart-summary-title">Order Summary</h2>
+                    <% cart.forEach(item=> { %>
+                        <div class="cart-item cart-item-compact">
+                            <div class="cart-item-image">
+                                <img src="<%= item.image %>" alt="<%= item.name %>">
+                            </div>
+                            <div class="cart-item-details">
+                                <h3 class="cart-item-name">
+                                    <%= item.name %>
+                                </h3>
+                                <p class="cart-item-price">$<%= item.price %> x <%= item.quantity %>
+                                </p>
+                            </div>
+                            <div class="cart-item-subtotal">
+                                $<%= (item.price * item.quantity).toFixed(2) %>
+                            </div>
+                        </div>
+                        <% }) %>
+                </div>
+
+                <div class="cart-summary">
+                    <h2 class="cart-summary-title">Total</h2>
+                    <div class="cart-summary-row">
+                        <span>Subtotal</span>
+                        <span>$<%= total.toFixed(2) %></span>
+                    </div>
+                    <div class="cart-summary-row">
+                        <span>Shipping</span>
+                        <span>Free</span>
+                    </div>
+                    <div class="cart-summary-row cart-summary-total">
+                        <span>Total</span>
+                        <span>$<%= total.toFixed(2) %></span>
+                    </div>
+                    <form action="/order" method="POST">
+                        <button type="submit" class="btn btn-primary btn-full">Place Order</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
