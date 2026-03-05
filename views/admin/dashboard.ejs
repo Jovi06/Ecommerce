@@ -1,0 +1,72 @@
+<%- include('../partials/header') %>
+
+    <main class="page-content admin-page">
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1 class="section-title">ADMIN DASHBOARD</h1>
+                <nav class="admin-nav">
+                    <a href="/admin/dashboard" class="btn btn-secondary btn-sm active">Dashboard</a>
+                    <a href="/admin/products" class="btn btn-secondary btn-sm">Products</a>
+                    <a href="/admin/orders" class="btn btn-secondary btn-sm">Orders</a>
+                    <a href="/admin/users" class="btn btn-secondary btn-sm">Users</a>
+                    <a href="/admin/coupons" class="btn btn-secondary btn-sm">Coupons</a>
+                    <a href="/admin/add-product" class="btn btn-primary btn-sm">+ Add Product</a>
+                </nav>
+            </div>
+
+            <div class="admin-stats">
+                <div class="stat-card">
+                    <h3 class="stat-value"><%= totalProducts %></h3>
+                    <p class="stat-label">Products</p>
+                </div>
+                <div class="stat-card">
+                    <h3 class="stat-value"><%= totalUsers %></h3>
+                    <p class="stat-label">Users</p>
+                </div>
+                <div class="stat-card">
+                    <h3 class="stat-value"><%= totalOrders %></h3>
+                    <p class="stat-label">Orders</p>
+                </div>
+                <div class="stat-card">
+                    <h3 class="stat-value">$<%= totalRevenue.toFixed(2) %></h3>
+                    <p class="stat-label">Revenue</p>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h2 class="cart-summary-title">Recent Orders</h2>
+                <% if (recentOrders && recentOrders.length > 0) { %>
+                    <div class="admin-table-wrapper">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% recentOrders.forEach(order => { %>
+                                    <tr>
+                                        <td><%= order._id.toString().slice(-8) %></td>
+                                        <td><%= order.user ? order.user.name : 'Deleted User' %></td>
+                                        <td>$<%= order.total.toFixed(2) %></td>
+                                        <td><span class="status-badge status-<%= order.status %>"><%= order.status %></span></td>
+                                        <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <p>No orders yet.</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </main>
+
+<%- include('../partials/footer') %>

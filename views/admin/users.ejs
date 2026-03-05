@@ -1,0 +1,71 @@
+<%- include('../partials/header') %>
+
+    <main class="page-content admin-page">
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1 class="section-title">MANAGE USERS</h1>
+                <nav class="admin-nav">
+                    <a href="/admin/dashboard" class="btn btn-secondary btn-sm">Dashboard</a>
+                    <a href="/admin/products" class="btn btn-secondary btn-sm">Products</a>
+                    <a href="/admin/orders" class="btn btn-secondary btn-sm">Orders</a>
+                    <a href="/admin/users" class="btn btn-secondary btn-sm active">Users</a>
+                    <a href="/admin/coupons" class="btn btn-secondary btn-sm">Coupons</a>
+                </nav>
+            </div>
+
+            <% if (users && users.length> 0) { %>
+                <div class="admin-table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach(u=> { %>
+                                <tr>
+                                    <td>
+                                        <%= u.name %>
+                                    </td>
+                                    <td>
+                                        <%= u.email %>
+                                    </td>
+                                    <td><span class="status-badge status-<%= u.role %>">
+                                            <%= u.role %>
+                                        </span></td>
+                                    <td>
+                                        <%= new Date(u.createdAt).toLocaleDateString() %>
+                                    </td>
+                                    <td>
+                                        <form action="/admin/users/update-role" method="POST"
+                                            style="display:flex;gap:4px;align-items:center;">
+                                            <input type="hidden" name="userId" value="<%= u._id %>">
+                                            <select name="role" class="form-input"
+                                                style="padding:4px 8px;font-size:12px;">
+                                                <option value="user" <%=u.role==='user' ? 'selected' : '' %>>User
+                                                </option>
+                                                <option value="admin" <%=u.role==='admin' ? 'selected' : '' %>>Admin
+                                                </option>
+                                            </select>
+                                            <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <h2>No users yet</h2>
+                        <p>Users will appear here when they register.</p>
+                    </div>
+                    <% } %>
+        </div>
+    </main>
+
+    <%- include('../partials/footer') %>

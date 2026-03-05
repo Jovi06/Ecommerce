@@ -1,0 +1,97 @@
+<%- include('../partials/header') %>
+
+    <main class="page-content admin-page">
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1 class="section-title">EDIT PRODUCT</h1>
+                <nav class="admin-nav">
+                    <a href="/admin/dashboard" class="btn btn-secondary btn-sm">Dashboard</a>
+                    <a href="/admin/products" class="btn btn-secondary btn-sm">← Back to Products</a>
+                </nav>
+            </div>
+
+            <% if (error) { %>
+                <div class="alert alert-error">
+                    <%= error %>
+                </div>
+                <% } %>
+                    <% if (success) { %>
+                        <div class="alert alert-success">
+                            <%= success %>
+                        </div>
+                        <% } %>
+
+                            <div class="auth-container" style="max-width:600px;">
+                                <form action="/admin/products/edit/<%= product._id %>" method="POST"
+                                    enctype="multipart/form-data" class="admin-form">
+                                    <div class="form-group">
+                                        <label for="name">Product Name</label>
+                                        <input type="text" id="name" name="name" value="<%= product.name %>" required
+                                            class="form-input">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="price">Price ($)</label>
+                                        <input type="number" id="price" name="price" value="<%= product.price %>"
+                                            step="0.01" required class="form-input">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="description">Description</label>
+                                        <textarea id="description" name="description" rows="4"
+                                            class="form-input"><%= product.description %></textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="category">Category</label>
+                                        <select id="category" name="category" required class="form-input">
+                                            <option value="running" <%=product.category==='running' ? 'selected' : '' %>
+                                                >Running</option>
+                                            <option value="lifestyle" <%=product.category==='lifestyle' ? 'selected'
+                                                : '' %>>Lifestyle</option>
+                                            <option value="basketball" <%=product.category==='basketball' ? 'selected'
+                                                : '' %>>Basketball</option>
+                                            <option value="training" <%=product.category==='training' ? 'selected' : ''
+                                                %>>Training</option>
+                                            <option value="jordan" <%=product.category==='jordan' ? 'selected' : '' %>
+                                                >Jordan</option>
+                                            <option value="skateboarding" <%=product.category==='skateboarding'
+                                                ? 'selected' : '' %>>Skateboarding</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="gender">Gender</label>
+                                        <select id="gender" name="gender" required class="form-input">
+                                            <option value="men" <%=product.gender==='men' ? 'selected' : '' %>>Men
+                                            </option>
+                                            <option value="women" <%=product.gender==='women' ? 'selected' : '' %>>Women
+                                            </option>
+                                            <option value="kids" <%=product.gender==='kids' ? 'selected' : '' %>>Kids
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="stock">Stock</label>
+                                        <input type="number" id="stock" name="stock" value="<%= product.stock || 0 %>"
+                                            class="form-input">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="image">Product Image</label>
+                                        <div style="margin-bottom:8px;">
+                                            <img src="<%= product.image %>" alt="Current image"
+                                                style="width:100px;height:100px;object-fit:contain;background:#f5f5f5;border-radius:8px;">
+                                        </div>
+                                        <input type="file" id="image" name="image" accept="image/*" class="form-input">
+                                        <small style="color:#757575;">Leave empty to keep current image</small>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary btn-full">Update Product</button>
+                                </form>
+                            </div>
+        </div>
+    </main>
+
+    <%- include('../partials/footer') %>

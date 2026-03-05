@@ -30,16 +30,27 @@ exports.placeOrder = async (req, res) => {
 
         const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
+        // Read shipping address from form
+        const { fullName, address, city, state, zip, phone } = req.body;
+
         const order = await Order.create({
             user: req.session.user.id,
             items: cart.map(item => ({
-                productId: item.productId,
+                product: item.productId,
                 name: item.name,
                 price: item.price,
                 quantity: item.quantity,
                 image: item.image
             })),
-            total
+            total,
+            shippingAddress: {
+                fullName: fullName || '',
+                address: address || '',
+                city: city || '',
+                state: state || '',
+                zip: zip || '',
+                phone: phone || ''
+            }
         });
 
         // Clear cart

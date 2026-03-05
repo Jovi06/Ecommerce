@@ -1,0 +1,82 @@
+<%- include('../partials/header') %>
+
+    <main class="page-content admin-page">
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1 class="section-title">MANAGE ORDERS</h1>
+                <nav class="admin-nav">
+                    <a href="/admin/dashboard" class="btn btn-secondary btn-sm">Dashboard</a>
+                    <a href="/admin/products" class="btn btn-secondary btn-sm">Products</a>
+                    <a href="/admin/orders" class="btn btn-secondary btn-sm active">Orders</a>
+                    <a href="/admin/users" class="btn btn-secondary btn-sm">Users</a>
+                    <a href="/admin/coupons" class="btn btn-secondary btn-sm">Coupons</a>
+                </nav>
+            </div>
+
+            <% if (orders && orders.length> 0) { %>
+                <div class="admin-table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% orders.forEach(order=> { %>
+                                <tr>
+                                    <td>
+                                        <%= order._id.toString().slice(-8) %>
+                                    </td>
+                                    <td>
+                                        <%= order.user ? order.user.name : 'Deleted User' %>
+                                    </td>
+                                    <td>
+                                        <%= order.items.length %> item(s)
+                                    </td>
+                                    <td>$<%= order.total.toFixed(2) %>
+                                    </td>
+                                    <td><span class="status-badge status-<%= order.status %>">
+                                            <%= order.status %>
+                                        </span></td>
+                                    <td>
+                                        <%= new Date(order.createdAt).toLocaleDateString() %>
+                                    </td>
+                                    <td>
+                                        <form action="/admin/orders/update-status" method="POST"
+                                            style="display:flex;gap:4px;align-items:center;">
+                                            <input type="hidden" name="orderId" value="<%= order._id %>">
+                                            <select name="status" class="form-input"
+                                                style="padding:4px 8px;font-size:12px;">
+                                                <option value="pending" <%=order.status==='pending' ? 'selected' : '' %>
+                                                    >Pending</option>
+                                                <option value="processing" <%=order.status==='processing' ? 'selected'
+                                                    : '' %>>Processing</option>
+                                                <option value="shipped" <%=order.status==='shipped' ? 'selected' : '' %>
+                                                    >Shipped</option>
+                                                <option value="delivered" <%=order.status==='delivered' ? 'selected'
+                                                    : '' %>>Delivered</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <h2>No orders yet</h2>
+                        <p>Orders will appear here when customers place them.</p>
+                    </div>
+                    <% } %>
+        </div>
+    </main>
+
+    <%- include('../partials/footer') %>

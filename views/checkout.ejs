@@ -6,24 +6,59 @@
 
             <div class="cart-layout">
                 <div class="checkout-items">
-                    <h2 class="cart-summary-title">Order Summary</h2>
-                    <% cart.forEach(item=> { %>
-                        <div class="cart-item cart-item-compact">
-                            <div class="cart-item-image">
-                                <img src="<%= item.image %>" alt="<%= item.name %>">
+                    <!-- Shipping Address Form -->
+                    <h2 class="cart-summary-title">Shipping Address</h2>
+                    <form action="/order" method="POST" id="checkout-form" class="checkout-form">
+                        <div class="form-group">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" name="fullName" required class="form-input"
+                                value="<%= user ? user.name : '' %>" placeholder="John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <input type="text" id="address" name="address" required class="form-input"
+                                placeholder="123 Nike Street">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="text" id="city" name="city" required class="form-input"
+                                    placeholder="New York">
                             </div>
-                            <div class="cart-item-details">
-                                <h3 class="cart-item-name">
-                                    <%= item.name %>
-                                </h3>
-                                <p class="cart-item-price">$<%= item.price %> x <%= item.quantity %>
-                                </p>
+                            <div class="form-group">
+                                <label for="state">State</label>
+                                <input type="text" id="state" name="state" required class="form-input" placeholder="NY">
                             </div>
-                            <div class="cart-item-subtotal">
-                                $<%= (item.price * item.quantity).toFixed(2) %>
+                            <div class="form-group">
+                                <label for="zip">ZIP Code</label>
+                                <input type="text" id="zip" name="zip" required class="form-input" placeholder="10001">
                             </div>
                         </div>
-                        <% }) %>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" name="phone" class="form-input"
+                                placeholder="+1 (555) 123-4567">
+                        </div>
+
+                        <h2 class="cart-summary-title" style="margin-top:24px;">Order Summary</h2>
+                        <% cart.forEach(item=> { %>
+                            <div class="cart-item cart-item-compact">
+                                <div class="cart-item-image">
+                                    <img src="<%= item.image %>" alt="<%= item.name %>">
+                                </div>
+                                <div class="cart-item-details">
+                                    <h3 class="cart-item-name">
+                                        <%= item.name %>
+                                    </h3>
+                                    <p class="cart-item-price">$<%= item.price %> x <%= item.quantity %>
+                                    </p>
+                                </div>
+                                <div class="cart-item-subtotal">
+                                    $<%= (item.price * item.quantity).toFixed(2) %>
+                                </div>
+                            </div>
+                            <% }) %>
+                    </form>
                 </div>
 
                 <div class="cart-summary">
@@ -40,9 +75,7 @@
                         <span>Total</span>
                         <span>$<%= total.toFixed(2) %></span>
                     </div>
-                    <form action="/order" method="POST">
-                        <button type="submit" class="btn btn-primary btn-full">Place Order</button>
-                    </form>
+                    <button type="submit" form="checkout-form" class="btn btn-primary btn-full">Place Order</button>
                 </div>
             </div>
         </div>

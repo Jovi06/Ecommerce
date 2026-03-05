@@ -5,7 +5,7 @@ exports.addToCart = async (req, res) => {
     try {
         const { productId } = req.body;
         const product = await Product.findById(productId);
-        if (!product) return res.redirect('back');
+        if (!product) return res.redirect(req.get('Referer') || '/');
 
         // Initialize cart if it doesn't exist
         if (!req.session.cart) {
@@ -29,10 +29,10 @@ exports.addToCart = async (req, res) => {
             });
         }
 
-        res.redirect('back');
+        res.redirect(req.get('Referer') || '/');
     } catch (err) {
         console.error(err);
-        res.redirect('back');
+        res.redirect(req.get('Referer') || '/');
     }
 };
 
