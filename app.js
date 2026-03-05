@@ -128,6 +128,23 @@ app.use((req, res) => {
 });
 
 // ──────────────────────────────────────────────
+// Global Error Handler (prevents function crash)
+// ──────────────────────────────────────────────
+app.use((err, req, res, next) => {
+    console.error('Unhandled error:', err.message);
+    if (req.originalUrl.startsWith('/api')) {
+        return res.status(500).json({ success: false, message: 'Server error. Please try again.' });
+    }
+    res.status(500).send(`
+        <html><body style="font-family:sans-serif;text-align:center;padding:80px;">
+        <h1>Something went wrong</h1>
+        <p>${process.env.VERCEL ? 'Please try again later.' : err.message}</p>
+        <a href="/">Go Home</a>
+        </body></html>
+    `);
+});
+
+// ──────────────────────────────────────────────
 // Start Server (only when running locally, not on Vercel)
 // ──────────────────────────────────────────────
 if (!process.env.VERCEL) {
