@@ -3,7 +3,17 @@
     "builds": [
         {
             "src": "app.js",
-            "use": "@vercel/node"
+            "use": "@vercel/node",
+            "config": {
+                "includeFiles": [
+                    "views/**",
+                    "config/**",
+                    "controllers/**",
+                    "middleware/**",
+                    "models/**",
+                    "routes/**"
+                ]
+            }
         },
         {
             "src": "public/**",
@@ -26,10 +36,6 @@
         {
             "src": "/frames/(.*)",
             "dest": "/public/frames/$1"
-        },
-        {
-            "src": "/uploads/(.*)",
-            "dest": "/app.js"
         },
         {
             "src": "/(.*)",
