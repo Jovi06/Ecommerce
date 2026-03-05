@@ -24,23 +24,11 @@ const apiOrderRoutes = require('./routes/api/orderRoutes');
 
 const app = express();
 
-// Connect to MongoDB and auto-seed if empty
+// ──────────────────────────────────────────────
+// Auto-seed data (for auto-seeding on first request)
+// ──────────────────────────────────────────────
 const Product = require('./models/Product');
 const { products: sampleProducts } = require('./seed');
-
-(async () => {
-    await connectDB();
-    // Auto-seed products if the database is empty
-    try {
-        const count = await Product.countDocuments();
-        if (count === 0) {
-            await Product.insertMany(sampleProducts);
-            console.log('🎉 Auto-seeded 15 sample products into the database.');
-        }
-    } catch (err) {
-        // Silently skip if DB isn't connected
-    }
-})();
 
 // ──────────────────────────────────────────────
 // Middleware
@@ -79,17 +67,31 @@ app.use((req, res, next) => {
 });
 
 // ──────────────────────────────────────────────
-// API Routes (JSON responses, JWT auth)
+// Database connection middleware
+// Ensures DB is connected before handling requests
+// and auto-seeds products if the database is empty
 // ──────────────────────────────────────────────
-// These are the new routes your frontend can
-// call using fetch() or axios.
-//
-// Example:
-//   fetch("/api/login", {
-//     method: "POST",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify({ email, password })
-//   })
+let dbReady = false;
+app.use(async (req, res, next) => {
+    if (!dbReady) {
+        await connectDB();
+        // Auto-seed products if the database is empty
+        try {
+            const count = await Product.countDocuments();
+            if (count === 0) {
+                await Product.insertMany(sampleProducts);
+                console.log('🎉 Auto-seeded 15 sample products into the database.');
+            }
+        } catch (err) {
+            // Silently skip if DB isn't connected
+        }
+        dbReady = true;
+    }
+    next();
+});
+
+// ──────────────────────────────────────────────
+// API Routes (JSON responses, JWT auth)
 // ──────────────────────────────────────────────
 app.use('/api', apiAuthRoutes);
 app.use('/api', apiProductRoutes);
@@ -125,10 +127,15 @@ app.use((req, res) => {
 });
 
 // ──────────────────────────────────────────────
-// Start Server
+// Start Server (only when running locally, not on Vercel)
 // ──────────────────────────────────────────────
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Nike server running at http://localhost:${PORT}`);
-    console.log(`API endpoints available at http://localhost:${PORT}/api`);
-});
+if (!process.env.VERCEL) {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`Nike server running at http://localhost:${PORT}`);
+        console.log(`API endpoints available at http://localhost:${PORT}/api`);
+    });
+}
+
+// Export for Vercel serverless function
+module.exports = app;

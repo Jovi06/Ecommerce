@@ -32,9 +32,33 @@ const orderSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'processing', 'shipped', 'delivered'],
+        enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
         default: 'pending'
-    }
+    },
+    paymentMethod: {
+        type: String,
+        enum: ['cod', 'card', 'upi'],
+        default: 'cod'
+    },
+    paymentStatus: {
+        type: String,
+        enum: ['pending', 'paid', 'failed', 'refunded'],
+        default: 'pending'
+    },
+    trackingNumber: {
+        type: String,
+        default: ''
+    },
+    couponCode: {
+        type: String,
+        default: ''
+    },
+    discount: {
+        type: Number,
+        default: 0
+    },
+    cancelledAt: Date,
+    deliveredAt: Date
 }, { timestamps: true });
 
 module.exports = mongoose.model('Order', orderSchema);

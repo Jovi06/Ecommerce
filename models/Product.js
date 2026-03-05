@@ -10,6 +10,10 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    originalPrice: {
+        type: Number,
+        default: 0
+    },
     description: {
         type: String,
         default: ''
@@ -24,12 +28,10 @@ const productSchema = new mongoose.Schema({
         required: true,
         enum: ['men', 'women', 'kids']
     },
-    // Original single image field (kept for EJS views backward compatibility)
     image: {
         type: String,
         default: '/images/placeholder.png'
     },
-    // New fields requested by user
     images: {
         type: [String],
         default: []
@@ -45,7 +47,31 @@ const productSchema = new mongoose.Schema({
     stock: {
         type: Number,
         default: 0
+    },
+    badge: {
+        type: String,
+        enum: ['', 'new', 'sale', 'sold-out', 'best-seller'],
+        default: ''
+    },
+    averageRating: {
+        type: Number,
+        default: 0
+    },
+    numReviews: {
+        type: Number,
+        default: 0
+    },
+    isFeatured: {
+        type: Boolean,
+        default: false
+    },
+    viewCount: {
+        type: Number,
+        default: 0
     }
 }, { timestamps: true });
+
+// Text index for search
+productSchema.index({ name: 'text', description: 'text', category: 'text' });
 
 module.exports = mongoose.model('Product', productSchema);

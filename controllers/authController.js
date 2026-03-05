@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const crypto = require('crypto');
 
 // GET /signup
 exports.getSignup = (req, res) => {
@@ -127,4 +128,96 @@ exports.logout = (req, res) => {
     req.session.destroy(() => {
         res.redirect('/');
     });
+};
+
+// GET /forgot-password
+exports.getForgotPassword = (req, res) => {
+    res.render('forgot-password', {
+        title: 'Forgot Password',
+        user: null,
+        error: null,
+        success: null
+    });
+};
+
+// POST /forgot-password
+exports.postForgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.render('forgot-password', {
+                title: 'Forgot Password',
+                user: null,
+                error: 'No account with that email exists.',
+                success: null
+            });
+        }
+
+        const resetToken = user.createPasswordResetToken();
+        await user.save();
+
+        // In a real app we'd send an email. For now, display the reset link.
+        res.render('forgot-password', {
+            title: 'Forgot Password',
+            user: null,
+            error: null,
+            success: `Password reset link: /reset-password/${resetToken} (In production, this would be emailed to you.)`
+        });
+    } catch (err) {
+        console.error(err);
+        res.render('forgot-password', {
+            title: 'Forgot Password',
+            user: null,
+            error: 'Something went wrong. Please try again.',
+            success: null
+        });
+    }
+};
+
+// GET /reset-password/:token
+exports.getResetPassword = (req, res) => {
+    res.render('reset-password', {
+        title: 'Reset Password',
+        token: req.params.token,
+        user: null,
+        error: null
+    });
+};
+
+// POST /reset-password/:token
+exports.postResetPassword = async (req, res) => {
+    try {
+        const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+
+        const user = await User.findOne({
+            resetPasswordToken: hashedToken,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.render('reset-password', {
+                title: 'Reset Password',
+                token: req.params.token,
+                user: null,
+                error: 'Token is invalid or expired.'
+            });
+        }
+
+        user.password = req.body.password;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+
+        res.redirect('/login');
+    } catch (err) {
+        console.error(err);
+        res.render('reset-password', {
+            title: 'Reset Password',
+            token: req.params.token,
+            user: null,
+            error: 'Something went wrong. Please try again.'
+        });
+    }
 };
