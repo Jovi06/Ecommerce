@@ -1,0 +1,11 @@
+# Don't bundle static assets into the serverless function
+public/frames
+public/images
+uploads
+
+# Dev files
+node_modules
+.env
+.git
+seed.js
+*.md

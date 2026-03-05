@@ -68,24 +68,25 @@ app.use((req, res, next) => {
 
 // ──────────────────────────────────────────────
 // Database connection middleware
-// Ensures DB is connected before handling requests
-// and auto-seeds products if the database is empty
+// Uses global flag to persist across warm Vercel invocations
 // ──────────────────────────────────────────────
-let dbReady = false;
 app.use(async (req, res, next) => {
-    if (!dbReady) {
-        await connectDB();
-        // Auto-seed products if the database is empty
-        try {
-            const count = await Product.countDocuments();
-            if (count === 0) {
-                await Product.insertMany(sampleProducts);
-                console.log('🎉 Auto-seeded 15 sample products into the database.');
+    if (!global._dbReady) {
+        const conn = await connectDB();
+        if (conn) {
+            // Auto-seed products if the database is empty
+            try {
+                const count = await Product.countDocuments();
+                if (count === 0) {
+                    await Product.insertMany(sampleProducts);
+                    console.log('🎉 Auto-seeded 15 sample products into the database.');
+                }
+            } catch (err) {
+                // Silently skip if DB isn't connected
             }
-        } catch (err) {
-            // Silently skip if DB isn't connected
+            global._dbReady = true;
         }
-        dbReady = true;
+        // If conn is null, continue without DB — pages will show empty state
     }
     next();
 });
