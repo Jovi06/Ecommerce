@@ -1,6 +1,4 @@
-# Don't bundle static assets into the serverless function
-public/frames
-public/images
+# Don't bundle uploads into the serverless function
 uploads
 
 # Dev files

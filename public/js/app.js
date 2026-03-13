@@ -1,5 +1,6 @@
 /* ============================================
    NIKE SCROLLYTELLING — TIGER EXPERIENCE ENGINE
+   Progressive Loading — No more 21MB upfront wait
    ============================================ */
 
 class TigerExperience {
@@ -8,9 +9,14 @@ class TigerExperience {
     this.totalFrames = 192;
     this.frameDir = 'frames';
     this.currentFrame = 0;
-    this.frames = [];
-    this.loadedCount = 0;
+    this.frames = new Array(this.totalFrames).fill(null);
+    this.loadedSet = new Set();
     this.isReady = false;
+
+    // Progressive loading config
+    this.criticalFrames = 12;   // Load first 12 frames before showing page (~1.5MB)
+    this.chunkSize = 8;         // Load 8 frames at a time in background
+    this.concurrency = 4;       // Max parallel downloads
 
     // DOM
     this.tigerSection = document.getElementById('tiger-section');
@@ -39,37 +45,69 @@ class TigerExperience {
     return `${this.frameDir}/frame_${padded}_delay-0.042s.webp`;
   }
 
-  /* ----- Preload all frames ----- */
-  preloadFrames() {
+  /* ----- Load a single frame (returns promise) ----- */
+  loadFrame(index) {
+    if (this.frames[index] && this.loadedSet.has(index)) {
+      return Promise.resolve(this.frames[index]);
+    }
+
     return new Promise((resolve) => {
-      let loaded = 0;
+      const img = new Image();
+      img.src = this.getFramePath(index);
 
-      for (let i = 0; i < this.totalFrames; i++) {
-        const img = new Image();
-        img.src = this.getFramePath(i);
+      img.onload = () => {
+        this.frames[index] = img;
+        this.loadedSet.add(index);
+        resolve(img);
+      };
 
-        img.onload = () => {
-          loaded++;
-          this.loadedCount = loaded;
-          const pct = Math.round((loaded / this.totalFrames) * 100);
-          this.loaderBar.style.width = `${pct}%`;
-          this.loaderText.textContent = `${pct}% loaded`;
+      img.onerror = () => {
+        this.loadedSet.add(index); // Mark as attempted
+        resolve(null);
+      };
 
-          if (loaded === this.totalFrames) {
-            resolve();
-          }
-        };
-
-        img.onerror = () => {
-          loaded++;
-          if (loaded === this.totalFrames) {
-            resolve();
-          }
-        };
-
-        this.frames[i] = img;
+      // Store reference even before load
+      if (!this.frames[index]) {
+        this.frames[index] = img;
       }
     });
+  }
+
+  /* ----- Phase 1: Load critical frames (first N) for instant display ----- */
+  async loadCriticalFrames() {
+    const promises = [];
+    for (let i = 0; i < this.criticalFrames; i++) {
+      promises.push(this.loadFrame(i));
+    }
+    await Promise.all(promises);
+
+    const pct = Math.round((this.criticalFrames / this.totalFrames) * 100);
+    this.loaderBar.style.width = `${pct}%`;
+    this.loaderText.textContent = `${pct}% loaded`;
+  }
+
+  /* ----- Phase 2: Load remaining frames in background with priority ----- */
+  async loadRemainingFrames() {
+    // Build a priority queue: frames near current scroll position first
+    const remaining = [];
+    for (let i = 0; i < this.totalFrames; i++) {
+      if (!this.loadedSet.has(i)) {
+        remaining.push(i);
+      }
+    }
+
+    // Process in chunks with limited concurrency
+    let completedTotal = this.loadedSet.size;
+
+    for (let i = 0; i < remaining.length; i += this.concurrency) {
+      const batch = remaining.slice(i, i + this.concurrency);
+      await Promise.all(batch.map(idx => this.loadFrame(idx)));
+
+      completedTotal = this.loadedSet.size;
+      const pct = Math.round((completedTotal / this.totalFrames) * 100);
+      this.loaderBar.style.width = `${pct}%`;
+      this.loaderText.textContent = `${pct}% loaded`;
+    }
   }
 
   /* ----- Size canvases to viewport ----- */
@@ -150,15 +188,40 @@ class TigerExperience {
     ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
   }
 
-  /* ----- Render frame to both canvases ----- */
+  /* ----- Render frame to both canvases (with fallback to nearest loaded frame) ----- */
   renderFrame(index) {
     const clampedIndex = Math.max(0, Math.min(index, this.totalFrames - 1));
-    const img = this.frames[clampedIndex];
+    let img = this.frames[clampedIndex];
+
+    // If requested frame isn't loaded yet, find the nearest loaded frame
+    if (!img || !img.complete || img.naturalWidth === 0) {
+      img = this.findNearestLoadedFrame(clampedIndex);
+    }
+
     if (!img) return;
 
     this.drawContain(this.fgCtx, img, this.canvasW, this.canvasH);
     this.drawCover(this.bgCtx, img, this.canvasW, this.canvasH);
     this.currentFrame = clampedIndex;
+  }
+
+  /* ----- Find nearest loaded frame for smooth fallback ----- */
+  findNearestLoadedFrame(targetIndex) {
+    // Search outward from the target index
+    for (let offset = 0; offset < this.totalFrames; offset++) {
+      const before = targetIndex - offset;
+      const after = targetIndex + offset;
+
+      if (before >= 0 && this.loadedSet.has(before)) {
+        const img = this.frames[before];
+        if (img && img.complete && img.naturalWidth > 0) return img;
+      }
+      if (after < this.totalFrames && this.loadedSet.has(after)) {
+        const img = this.frames[after];
+        if (img && img.complete && img.naturalWidth > 0) return img;
+      }
+    }
+    return null;
   }
 
   /* ----- rAF render loop ----- */
@@ -188,6 +251,9 @@ class TigerExperience {
         if (frameIndex !== this.currentFrame) {
           this.currentFrame = frameIndex;
           this.needsRender = true;
+
+          // Prioritize loading frames near current scroll position
+          this.prioritizeNearbyFrames(frameIndex);
         }
       }
     });
@@ -239,6 +305,22 @@ class TigerExperience {
         });
       });
     });
+  }
+
+  /* ----- Prioritize loading frames near scroll position ----- */
+  prioritizeNearbyFrames(centerIndex) {
+    const range = 10; // Load 10 frames ahead and behind
+    for (let offset = 0; offset <= range; offset++) {
+      const ahead = centerIndex + offset;
+      const behind = centerIndex - offset;
+
+      if (ahead < this.totalFrames && !this.loadedSet.has(ahead)) {
+        this.loadFrame(ahead);
+      }
+      if (behind >= 0 && !this.loadedSet.has(behind)) {
+        this.loadFrame(behind);
+      }
+    }
   }
 
   /* ----- Lenis smooth scroll ----- */
@@ -314,15 +396,15 @@ class TigerExperience {
   async init() {
     this.setupCanvases();
 
-    // Preload frames
-    await this.preloadFrames();
+    // Phase 1: Load only critical frames (first 12) — fast initial display
+    await this.loadCriticalFrames();
 
-    // Render first frame
+    // Render first frame immediately
     this.currentFrame = 0;
     this.needsRender = true;
     this.renderFrame(0);
 
-    // Hide loader
+    // Hide loader — page is now interactive!
     this.hideLoader();
 
     // Start systems
@@ -333,6 +415,9 @@ class TigerExperience {
     this.onResize();
 
     this.isReady = true;
+
+    // Phase 2: Load remaining frames in background (user can already scroll)
+    this.loadRemainingFrames();
   }
 }
 

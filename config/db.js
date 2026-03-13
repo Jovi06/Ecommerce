@@ -58,7 +58,7 @@ const connectDB = async () => {
 
         // Cloud MongoDB (Atlas) — used on Vercel
         cached.promise = mongoose.connect(mongoURI, {
-            serverSelectionTimeoutMS: 5000,
+            serverSelectionTimeoutMS: 3000,
             socketTimeoutMS: 45000,
         });
     }
